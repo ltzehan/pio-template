@@ -2,6 +2,8 @@
 
 #include <stdint.h>
 
+#error "Should fail"
+
 #include "common_include.h"
 
 typedef struct
