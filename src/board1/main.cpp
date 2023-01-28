@@ -10,18 +10,21 @@ void board1_function()
 	board1_t board1;
 	board1.id = COMMON_DEFINE;
 
-	Serial.println(FIRMWARE_HASH);
-	Serial.println(board1.id);
-
 	return;
 }
 
 void setup()
 {
+	Serial.begin(9600);
+
 	lib_function();
 }
 
 void loop()
 {
+	Serial.print("Firmware hash: ");
+	Serial.println(FIRMWARE_HASH);
+
 	board1_function();
+	delay(200);
 }
