@@ -27,31 +27,25 @@ def save_hash(env, hash: str):
     with open(hashes_path, 'w') as ff:
         json.dump(hashes, ff, indent=4)
 
-def get_hash(hex_path):
 
-    # Read output HEX file
-    hex = open(hex_path, "rb+")
-    hex_data = hex.read()
+def hash_file(file_path):
 
-    # First 8 byte of SHA1 as string
-    hash = hashlib.sha1(hex_data).hexdigest()[:16]
+    ff = open(file_path, "rb+")
+    data = ff.read()
+
+    # First 8 bytes of SHA1 as string
+    hash = hashlib.sha1(data).hexdigest()[:16]
     return hash
 
 
 def replace_firmware_hash(source, target, env):
     print("-" * 80)
 
-    # firmware.hex
-    hex_path = target[0].get_abspath()
-
-    # firmware.elf
-    elf_path = Path(env['PROJECT_BUILD_DIR']) / env['PIOENV'] / "firmware.elf"
+    elf_path = target[0].get_abspath()
     elf = open(elf_path, 'rb+')
     elf_data = elf.read()
 
-    # Compute hash from HEX file
-    # Doesn't work with ELF because of random debug symbols and paths
-    hash = get_hash(hex_path)
+    hash = hash_file(elf_path)
     print("Firmware hash:\t", hash)
     
     save_hash(env, hash)
@@ -65,13 +59,15 @@ def replace_firmware_hash(source, target, env):
 
     print("-" * 80)
 
+# Find toolchain strip using gcc name
+strip_tool = env['CC'].replace("gcc", "strip")
+
 env.AddPostAction(
     "$BUILD_DIR/firmware.elf",
     [
-        replace_firmware_hash,
         env.VerboseAction(" ".join([
-            "$OBJCOPY", "-O", "ihex", "-R", ".eeprom", 
-            '"$BUILD_DIR/firmware.elf"', '"$BUILD_DIR/firmware.hex"'
-        ]), "Re-building HEX file")
+            strip_tool, "--strip-unneeded", "$BUILD_DIR/firmware.elf"
+        ]), "Stripping symbols..."),
+        replace_firmware_hash
     ]
 )
