@@ -32,7 +32,7 @@ jobs:
       - name: Upload firmware hashes
         uses: actions/upload-artifact@v3
         with:
-          name: firmware_hashes.json
+          name: firmware_hashes
           path: .pio/firmware_hashes.json
 
       - name: Upload firmware
