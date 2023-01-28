@@ -24,4 +24,19 @@ jobs:
         run: pip install --upgrade platformio
 
       - name: Build PlatformIO Project
-        run: pio run
+        run: pio run -v
+
+      - name: List environment dependencies
+        run: pio pkg list
+
+      - name: Upload firmware hashes
+        uses: actions/upload-artifact@v3
+        with:
+          name: firmware_hashes
+          path: .pio/firmware_hashes.json
+
+      - name: Upload firmware
+        uses: actions/upload-artifact@v3
+        with:
+          name: firmware-elf
+          path: .pio/build/**/firmware.elf

@@ -1,0 +1,1 @@
+extern const char FIRMWARE_HASH[] = "BBASBBASBBASBBAS";
