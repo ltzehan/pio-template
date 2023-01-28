@@ -23,6 +23,9 @@ jobs:
       - name: Install PlatformIO Core
         run: pip install --upgrade platformio
 
+      - name: List package dependencies
+        run: pio pkg list
+
       - name: Build PlatformIO Project
         run: pio run -v
 
