@@ -34,3 +34,9 @@ jobs:
         with:
           name: firmware_hashes.json
           path: .pio/firmware_hashes.json
+
+      - name: Upload firmware
+        uses: actions/upload-artifact@v3
+        with:
+          name: firmware-elf
+          path: .pio/build/**/firmware.elf
