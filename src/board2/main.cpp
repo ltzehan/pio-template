@@ -6,7 +6,8 @@
 
 void board2_function()
 {
-	board2_t board2 { .id = COMMON_DEFINE };
+	board2_t board2;
+	board2.id = COMMON_DEFINE;
 	board2.id++;
 
 	return;
