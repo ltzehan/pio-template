@@ -37,16 +37,18 @@ jobs:
       - name: List environment dependencies
         run: pio pkg list
 
-      - name: Add project hashes
-        run: python scripts/ci_commit_hashes.py
-
-      - uses: EndBug/add-and-commit@v9
-        with:
-          add: "firmware_hashes.json"
-          message: "Update firmware hashes from CI"
-
       - name: Upload firmware hashes
         uses: actions/upload-artifact@v3
         with:
           name: firmware_hashes
           path: .pio/firmware_hashes.json
+
+      - name: Add project hashes
+        run: python scripts/ci_commit_hashes.py
+        if: github.ref == 'refs/heads/main' && github.event_name == 'pull_request'
+
+      - uses: EndBug/add-and-commit@v9
+        with:
+          add: "firmware_hashes.json"
+          message: "Update firmware hashes from CI"
+          if: github.ref == 'refs/heads/main' && github.event_name == 'pull_request'
