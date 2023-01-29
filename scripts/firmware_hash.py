@@ -1,33 +1,39 @@
+from collections import defaultdict
 import hashlib
 import json
 from pathlib import Path
 
 Import("env")
 
-HASH_DEFAULT = "BBASBBASBBASBBAS".encode('ascii')
-HASHES_FNAME = "firmware_hashes.json"
+HASH_SIGNATURE = "BBASBBASBBASBBAS".encode('ascii')
 
-def save_hash(env, hash: str):
-    # Save hashes to .pio/
-    workspace_dir = Path(env['PROJECT_WORKSPACE_DIR'])
-    hashes_path = Path(workspace_dir / HASHES_FNAME)
+# Firmware hashes for current project
+# Local: .pio/firmware_hashes.json  
+PROJECT_HASHES_PATH = Path(env['PROJECT_WORKSPACE_DIR']) / "firmware_hashes.json"
 
-    print("Saving hash to\t", str(hashes_path))
 
-    hashes = None
-    if not hashes_path.exists():
-        hashes = {}
-    else:
-        with open(hashes_path, 'r') as ff:
+def save_hash(hash: str):
+    print("Saving hash to\t", str(PROJECT_HASHES_PATH))
+
+    hashes = defaultdict()
+    if PROJECT_HASHES_PATH.exists():
+        with open(PROJECT_HASHES_PATH, "r") as ff:
             hashes = json.load(ff)
 
+    '''
+    {
+        "env-1": FIRMWARE-HASH,
+        "env-2": FIRMWARE-HASH,
+        ...
+    }
+    '''
     env_name = env['PIOENV']
     hashes[env_name] = hash
 
-    with open(hashes_path, 'w') as ff:
+    with open(PROJECT_HASHES_PATH, 'w') as ff:
         json.dump(hashes, ff, indent=4)
 
-
+# Calculate firmware hash using binary
 def hash_file(file_path):
 
     ff = open(file_path, "rb+")
@@ -38,6 +44,7 @@ def hash_file(file_path):
     return hash
 
 
+# Inject calculated hash into ELF file
 def replace_firmware_hash(source, target, env):
     print("-" * 80)
 
@@ -48,9 +55,9 @@ def replace_firmware_hash(source, target, env):
     hash = hash_file(elf_path)
     print("Firmware hash:\t", hash)
     
-    save_hash(env, hash)
+    save_hash(hash)
 
-    offset = elf_data.find(HASH_DEFAULT)
+    offset = elf_data.find(HASH_SIGNATURE)
     assert offset != -1, "Firmware hash default signature not found"
 
     elf.seek(offset)

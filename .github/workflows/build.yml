@@ -2,12 +2,20 @@ name: PlatformIO CI
 
 on: [push, pull_request]
 
+permissions:
+  actions: write
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
 
       - uses: actions/cache@v3
         with:
@@ -35,8 +43,12 @@ jobs:
           name: firmware_hashes
           path: .pio/firmware_hashes.json
 
-      - name: Upload firmware
-        uses: actions/upload-artifact@v3
+      - name: Add project hashes
+        run: python scripts/ci_commit_hashes.py
+        if: github.ref == 'refs/heads/main' && github.event_name == 'pull_request'
+
+      - uses: EndBug/add-and-commit@v9
+        if: github.ref == 'refs/heads/main' && github.event_name == 'pull_request'
         with:
-          name: firmware-elf
-          path: .pio/build/**/firmware.elf
+          add: "firmware_hashes.json"
+          message: "Update firmware hashes from CI"
