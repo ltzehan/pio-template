@@ -29,14 +29,16 @@ jobs:
       - name: List environment dependencies
         run: pio pkg list
 
+      - name: Add project hashes
+        run: python scripts/ci_commit_hashes.py
+
+      - uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "Update firmware hashes from CI"
+          file_pattern: "firmware_hashes.json"
+
       - name: Upload firmware hashes
         uses: actions/upload-artifact@v3
         with:
           name: firmware_hashes
           path: .pio/firmware_hashes.json
-
-      - name: Upload firmware
-        uses: actions/upload-artifact@v3
-        with:
-          name: firmware-elf
-          path: .pio/build/**/firmware.elf
