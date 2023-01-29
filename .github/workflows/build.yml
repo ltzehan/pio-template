@@ -37,10 +37,10 @@ jobs:
       - name: Add project hashes
         run: python scripts/ci_commit_hashes.py
 
-      - uses: stefanzweifel/git-auto-commit-action@v4
+      - uses: EndBug/add-and-commit@v9
         with:
-          commit_message: "Update firmware hashes from CI"
-          file_pattern: "firmware_hashes.json"
+          add: "firmware_hashes.json"
+          message: "Update firmware hashes from CI"
 
       - name: Upload firmware hashes
         uses: actions/upload-artifact@v3
