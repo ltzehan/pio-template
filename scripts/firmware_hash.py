@@ -66,7 +66,7 @@ env.AddPostAction(
     "$BUILD_DIR/firmware.elf",
     [
         env.VerboseAction(" ".join([
-            strip_tool, "--strip-unneeded", "$BUILD_DIR/firmware.elf"
+            strip_tool, "--strip-unneeded", "\"$BUILD_DIR/firmware.elf\""
         ]), "Stripping symbols..."),
         replace_firmware_hash
     ]
